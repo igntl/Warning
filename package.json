@@ -1,16 +1,13 @@
 {
-  "name": "discord-bot",
+  "name": "discord-warning-bot",
   "version": "1.0.0",
-  "description": "بوت الانذارات",
-  "main": "bot.js",
+  "description": "بوت الإنذارات للعقوبات والتقسيمات",
+  "main": "index.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.15.0",
-    "fs-extra": "^11.1.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "discord.js": "^14.15.1",
+    "dotenv": "^16.3.1"
   }
 }
