@@ -1,16 +1,13 @@
 {
-  "name": "discord-anathirat-bot",
+  "name": "warning-bot",
   "version": "1.0.0",
-  "description": "بوت الانذارات مع لوق تلقائي",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "discord.js": "^14.11.0",
-    "fs-extra": "^11.1.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "node-schedule": "^2.1.1"
   }
 }
