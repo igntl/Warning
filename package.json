@@ -1,13 +1,16 @@
 {
-  "name": "discord-warning-bot",
+  "name": "discord-anathirat-bot",
   "version": "1.0.0",
-  "description": "بوت الإنذارات للعقوبات والتقسيمات",
+  "description": "بوت الانذارات مع لوق تلقائي",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.15.1",
-    "dotenv": "^16.3.1"
+    "discord.js": "^14.11.0",
+    "fs-extra": "^11.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
