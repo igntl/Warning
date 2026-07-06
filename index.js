@@ -116,7 +116,7 @@ client.on("interactionCreate", async (interaction) => {
         { name: "👤 المستخدم", value: `<@${member.id}>`, inline: true },
         { name: "👮 الإداري", value: `<@${interaction.user.id}>`, inline: true },
         { name: "📋 العقوبة", value: ROLES[data.type].name },
-        { name: "⏱ المدة", value: data.duration ? `${data.duration / 1000 / 60} دقيقة` : "دائم" },
+        { name: "⏱ المدة", value: data.duration ? `${data.duration / 1000 / 60 / 60 / 24} يوم` : "دائم" },
         { name: "📝 السبب", value: reason }
       )
       .setTimestamp();
