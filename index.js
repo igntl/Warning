@@ -7,26 +7,19 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 
 // 📌 IDs
+const CHANNEL_ID = "1483219896069525665"; // روم البوت
 const LOG_CHANNEL = "1490286354175758366";
-const COMMAND_CHANNEL = "1483219896069525665"; // الروم الذي يعمل فيه البوت
-const ALLOWED_ROLES = ["1523520246097514528"]; // مسؤولين الشكاوي فقط
+const ALLOWED_ROLES = ["1523520246097514528"]; // مسؤولين الشكاوي
 
 // ⚡ الإنذارات والرتب
 const ROLES = {
-  verbal: { id: "1523525037162893373", name: "انذار شفهي", duration: 3 * 24 * 60 * 60 * 1000 },
-  warn1: { id: "1523519282707828756", name: "انذار أول", duration: 14 * 24 * 60 * 60 * 1000 },
-  warn2: { id: "1523519193314758758", name: "انذار ثاني", duration: 30 * 24 * 60 * 60 * 1000 },
-  warn3: { id: "1523519440451272794", name: "انذار ثالث", duration: 45 * 24 * 60 * 60 * 1000 },
+  verbal: { id: "1523525037162893373", name: "انذار شفهي", duration: 3 * 24 * 60 * 60 * 1000 }, // 3 أيام
+  warn1: { id: "1523519282707828756", name: "انذار أول", duration: 14 * 24 * 60 * 60 * 1000 }, // أسبوعين
+  warn2: { id: "1523519193314758758", name: "انذار ثاني", duration: 30 * 24 * 60 * 60 * 1000 }, // شهر
+  warn3: { id: "1523519440451272794", name: "انذار ثالث", duration: 45 * 24 * 60 * 60 * 1000 }, // شهر ونصف
   block: { id: "1523519407379189890", name: "مستبعد من التقسيمة", duration: null },
   black: { id: "1498706382587822191", name: "بلاك ليست", duration: null },
-  test: { id: null, name: "تجربة", duration: 60 * 1000 } // دقيقة تجربة
-};
-
-const DURATIONS = {
-  test: { label: "تجربة", time: 60 * 1000 },
-  day: { label: "يوم", time: 24 * 60 * 60 * 1000 },
-  week: { label: "اسبوع", time: 7 * 24 * 60 * 60 * 1000 },
-  permanent: { label: "دائم", time: null }
+  test: { id: null, name: "تجربة", duration: 60 * 1000 } // دقيقة
 };
 
 const temp = new Map();
@@ -36,14 +29,14 @@ client.once("ready", async () => {
 
   const cmd = new SlashCommandBuilder()
     .setName("انذارات")
-    .setDescription("لوحة الإنذارات")
+    .setDescription("لوحة الانذارات")
     .addUserOption(o => o.setName("الشخص").setDescription("اختر الشخص").setRequired(true));
 
   await client.application.commands.set([cmd]);
 });
 
-client.on("interactionCreate", async (interaction) => {
-  if (interaction.channel.id !== COMMAND_CHANNEL) return;
+client.on("interactionCreate", async interaction => {
+  if (interaction.channel.id !== CHANNEL_ID) return;
 
   if (interaction.isChatInputCommand()) {
     const hasRole = interaction.member.roles.cache.some(r => ALLOWED_ROLES.includes(r.id));
@@ -64,35 +57,33 @@ client.on("interactionCreate", async (interaction) => {
         { label: "بلاك ليست", value: "black" }
       ]);
 
-    return interaction.reply({
-      content: "اختر العقوبات:",
-      components: [new ActionRowBuilder().addComponents(menu)],
-      ephemeral: true
-    });
+    return interaction.reply({ content: "اختر العقوبة:", components: [new ActionRowBuilder().addComponents(menu)], ephemeral: true });
   }
 
   if (interaction.isStringSelectMenu() && interaction.customId === "types") {
     const data = temp.get(interaction.user.id);
     data.types = interaction.values;
 
-    const needsDuration = data.types.some(t => ["block", "black"].includes(t));
+    // تحقق إذا لازم يحدد المدة
+    const needsDuration = data.types.some(t => ["block","black"].includes(t));
     if (needsDuration) {
       const menu = new StringSelectMenuBuilder()
         .setCustomId("duration")
         .setPlaceholder("اختر المدة")
         .addOptions([
           { label: "تجربة", value: "test" },
-          { label: "يوم", value: "day" },
-          { label: "اسبوع", value: "week" },
+          { label: "1 يوم", value: "day" },
+          { label: "1 أسبوع", value: "week" },
           { label: "دائم", value: "permanent" }
         ]);
       return interaction.update({ content: "اختر المدة:", components: [new ActionRowBuilder().addComponents(menu)] });
-    } else {
-      const modal = new ModalBuilder().setCustomId("reasonModal").setTitle("سبب العقوبة");
-      const input = new TextInputBuilder().setCustomId("reason").setLabel("اكتب السبب").setStyle(TextInputStyle.Paragraph).setRequired(true);
-      modal.addComponents(new ActionRowBuilder().addComponents(input));
-      return interaction.showModal(modal);
     }
+
+    // إذا إنذارات ثابتة مدة لا تحتاج اختيار
+    const modal = new ModalBuilder().setCustomId("reasonModal").setTitle("سبب العقوبة");
+    const input = new TextInputBuilder().setCustomId("reason").setLabel("اكتب السبب").setStyle(TextInputStyle.Paragraph).setRequired(true);
+    modal.addComponents(new ActionRowBuilder().addComponents(input));
+    return interaction.showModal(modal);
   }
 
   if (interaction.isStringSelectMenu() && interaction.customId === "duration") {
@@ -113,32 +104,28 @@ client.on("interactionCreate", async (interaction) => {
     const member = await interaction.guild.members.fetch(data.target);
 
     for (const t of data.types) {
-      const role = interaction.guild.roles.cache.get(ROLES[t].id);
+      const roleInfo = ROLES[t];
+      const role = interaction.guild.roles.cache.get(roleInfo.id);
+      if (!role) continue;
       await member.roles.add(role);
 
-      const duration = ROLES[t].duration || (DURATIONS[data.duration]?.time || null);
-      if (duration) setTimeout(async () => {
-        const role = interaction.guild.roles.cache.get(ROLES[t].id);
-        if (role && member.roles.cache.has(role.id)) await member.roles.remove(role);
-
-        // حذف اللوق بعد انتهاء مدة العقوبة
-        const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL);
-        if (logChannel) {
-          const messages = await logChannel.messages.fetch({ limit: 100 });
-          const msgToDelete = messages.find(m => m.embeds[0]?.fields?.some(f => f.value.includes(member.id) && f.name === "👤 المستخدم"));
-          if (msgToDelete) await msgToDelete.delete().catch(() => {});
-        }
-      }, duration);
+      const duration = roleInfo.duration || (ROLES[data.duration]?.duration || null);
+      if (duration) {
+        setTimeout(async () => {
+          const r = interaction.guild.roles.cache.get(roleInfo.id);
+          if (r && member.roles.cache.has(r.id)) await member.roles.remove(r);
+          // حذف اللوق بعد انتهاء المدة
+          const logChannel = interaction.guild.channels.cache.get(LOG_CHANNEL);
+          if (logChannel) {
+            const messages = await logChannel.messages.fetch({ limit: 100 });
+            const msgToDelete = messages.find(m => m.embeds[0]?.footer?.text?.includes(member.id));
+            if (msgToDelete) await msgToDelete.delete().catch(()=>{});
+          }
+        }, duration);
+      }
     }
 
     const punishNames = data.types.map(t => ROLES[t].name).join(" + ");
-    const durationText = data.types.map(t => {
-      const dur = ROLES[t].duration || DURATIONS[data.duration]?.time;
-      if (!dur) return "دائم";
-      return t === "test" ? "تجربة دقيقة" :
-        `${Math.round(dur / (1000 * 60 * 60 * 24))} يوم`;
-    }).join(" + ");
-
     const embed = new EmbedBuilder()
       .setTitle("🚨 تم إعطاء عقوبة")
       .setColor(0xFF4C4C)
@@ -146,9 +133,9 @@ client.on("interactionCreate", async (interaction) => {
         { name: "👤 المستخدم", value: `<@${member.id}>`, inline: true },
         { name: "👮 الإداري", value: `<@${interaction.user.id}>`, inline: true },
         { name: "📋 العقوبات", value: punishNames },
-        { name: "⏱️ المدة", value: durationText, inline: true },
         { name: "📝 السبب", value: reason }
       )
+      .setFooter({ text: member.id }) // لتحديد الرسالة لاحقًا للحذف
       .setTimestamp();
 
     const log = interaction.guild.channels.cache.get(LOG_CHANNEL);
