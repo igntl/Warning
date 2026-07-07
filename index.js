@@ -4,18 +4,18 @@ import schedule from 'node-schedule';
 const TOKEN = process.env.TOKEN;
 
 // 📌 IDs
-const LOG_CHANNEL = "1490286354175758366";
-const ALLOWED_ROLES = ["1523520246097514528"];
-const ACTIVE_CHANNEL = "1483219896069525665";
+const LOG_CHANNEL = "1524143423542792232";
+const ALLOWED_ROLES = ["1472012734592712796"];
+const ACTIVE_CHANNEL = "1524143588559032340";
 
 // ⚡ الإنذارات والرتب
 const ROLES = {
-  verbal: { id: "1523525037162893373", name: "انذار شفهي", duration: 3 * 24 * 60 * 60 * 1000 },
-  warn1: { id: "1523519282707828756", name: "انذار أول", duration: 14 * 24 * 60 * 60 * 1000 },
-  warn2: { id: "1523519193314758758", name: "انذار ثاني", duration: 30 * 24 * 60 * 60 * 1000 },
-  warn3: { id: "1523519440451272794", name: "انذار ثالث", duration: 45 * 24 * 60 * 60 * 1000 },
-  block: { id: "1523519407379189890", name: "مستبعد من التقسيمة", duration: null },
-  black: { id: "1498706382587822191", name: "بلاك ليست", duration: null },
+  verbal: { id: "1524149934247514174", name: "انذار شفهي", duration: 3 * 24 * 60 * 60 * 1000 },
+  warn1: { id: "1524149675555291157", name: "انذار أول", duration: 14 * 24 * 60 * 60 * 1000 },
+  warn2: { id: "1524149759785435366", name: "انذار ثاني", duration: 30 * 24 * 60 * 60 * 1000 },
+  warn3: { id: "1524149861275013290", name: "انذار ثالث", duration: 45 * 24 * 60 * 60 * 1000 },
+  block: { id: "1364025035022401536", name: "مستبعد من التقسيمة", duration: null },
+  black: { id: "1524147615866945666", name: "بلاك ليست", duration: null },
   test: { id: null, name: "تجربة", duration: 1 * 60 * 1000 } // دقيقة
 };
 
